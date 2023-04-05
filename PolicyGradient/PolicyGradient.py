@@ -1,12 +1,8 @@
 import gym
-import numpy as np
 import math
 
 import torch
 import torch.nn as nn
-
-import matplotlib.pyplot as plt
-from matplotlib import animation
 
 
 class Net(nn.Module):
@@ -27,7 +23,6 @@ class Net(nn.Module):
         return output
 
 
-# define Policy Gradient
 class PolicyGradient(nn.Module):
     def __init__(self):
         super().__init__()
@@ -103,51 +98,25 @@ class PolicyGradient(nn.Module):
         self.history_rewards.clear()
 
 
-# define some functions
 def print_red(string):
     print('\033[0;31m', end='')
     print(string, end='')
     print('\033[0m')
 
 
-def save_gif(frames, filename):
-    figure = plt.imshow(frames[0])
-    plt.axis('off')
-
-    # callback function
-    def animate(i):
-        figure.set_data(frames[i])
-
-    anim = animation.FuncAnimation(plt.gcf(), animate, frames=len(frames), interval=5)
-    anim.save(filename, writer='pillow', fps=30)
-
-
 if __name__ == '__main__':
-    # create cartpole model
     env = gym.make('CartPole-v1', render_mode='human')
-
-    # reset state of env
     state, _ = env.reset()
-
-    # crate Policy Gradient model
     model = PolicyGradient()
-
-    # step of learning
     learn_step = 0
+    episodes = 20000
 
-    # flag of train ok
-    train_ok = False
-    episode = 0
-
-    # play and train
-    while not train_ok:
+    for ep in range(episodes):
         state, _ = env.reset()
 
         play_step = 0
         total_rewards = 0
-
-        episode += 1
-        print(f'\nEpisode {episode} ...')
+        print(f'\nEpisode {ep} ...')
 
         while True:
             env.render()
@@ -177,11 +146,4 @@ if __name__ == '__main__':
             if play_step >= 20000:
                 train_ok = True
                 break
-
-    # train ok, save model
-    save_file = 'policy_gradient.ptl'
-    torch.save(model, save_file)
-    print_red(f'\nmodel trained ok, saved to {save_file}')
-
-    # close env
     env.close()
